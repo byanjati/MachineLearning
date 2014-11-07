@@ -23,12 +23,14 @@ p = [[3,3,2],
 	 [1,2,1],
 	 [1,1,2]]
 
+list_p = p
+
+jumData = len(p)
+
 t = [1,1,1,1,0,1,1,1,0,1,0,1]
 
 w1 = [[random.random()*2-1 for j in range(dimPola)] for i in range(jumNeuron)]
 w2 = [[random.random()*2-1 for j in range(jumNeuron)] for i in range(jumOutput)]
-
-print(w2)
 
 MSEpoch = MaxMSE + 1
 MSE = []
@@ -36,14 +38,14 @@ ee = 1
 
 while((ee < Epoch)and(MSEpoch > MaxMSE)):
 	MSEpoch = 0
-	for i in range(len(p)):
-		cp = p[:][i]
+	for i in range(jumData):
+		cp = list_p[:][i]
 		ct = t[i]
 
 		a1 = []
 		v = 0
 		for i in range(jumNeuron):
-			list_v = [p*w for p,w in zip(cp,w1[:][i])]
+			list_v = [a*b for a,b in zip(cp,w1[:][i])]
 			for i in list_v:
 				v += i
 			math_v = 1/(1+math.exp(-1*v))
@@ -97,7 +99,54 @@ while((ee < Epoch)and(MSEpoch > MaxMSE)):
 
 		w2 = calon_w2
 
-	MSE.append(MSEpoch/len(p))
+	MSE.append(MSEpoch/jumData)
 	ee += 1
 
-print(w2)
+# print(w2)
+
+TestSet = [[3,3,1],
+		   [3,1,2],
+		   [2,3,1],
+		   [2,1,2],
+		   [1,3,1],
+		   [1,2,2],
+		   [1,1,1],]
+
+TestKelas = [0,1,0,1,0,1,0]
+
+jumPola = len(TestSet[:][0])
+jumBenar = 0
+
+for i in range(jumPola):
+	cp = TestSet[:][i]
+	a1 = []
+	for j in range(jumNeuron):
+		list_v = [a*b for a,b in zip(cp,w1[:][j])]
+		v = 0
+		for k in list_v:
+			v += k
+		math_v = 1/(1+math.exp(-1*v))
+		a1.append(math_v)
+
+	a2=[]
+	for j in range(jumOutput):
+		list_v = [a*b for a,b in zip(a1,w2[:][j])]
+		v = 0
+		for k in list_v:
+			v += k
+		math_v = 1/(1+math.exp(-1*v))
+		a2.append(math_v)
+
+	Kelas = 0 
+	for j in range(jumOutput):
+		if(a2[:][j] < 0.5):
+			Kelas = 0
+		else:
+			kelas = 1
+
+	if(Kelas==TestKelas[i]):
+		jumBenar = jumBenar + 1
+
+hasil = (float(jumBenar)/float(jumPola))*100
+
+print "Akurasi : " + str(hasil) + " %"
